@@ -1,0 +1,13 @@
+ja:
+  activerecord:
+    models:
+      category: カテゴリー
+      post: 書き込み
+    attributes:
+      category:
+        name: カテゴリー名
+      post:
+        name: 名前
+        mail: メールアドレス
+        title: 件名
+        memo: 本文

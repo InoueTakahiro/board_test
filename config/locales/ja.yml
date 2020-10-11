@@ -1,0 +1,8 @@
+ja:
+  activerecord:
+    errors:
+      models:
+        post:
+          attributes:
+            memo:
+              blank: を入力してください
