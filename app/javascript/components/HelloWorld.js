@@ -189,35 +189,17 @@ class HelloWorld extends React.Component {
         <div className="card-columns">
         {this.state.posts.map(
           (post, idx) => {
-            if(post.id !== this.state.edit_post.id){
-                return(<div className="card">
-                          <h4 className="card-header">{post.title}
-                          </h4>
-                          <div className="card-body">
-                            <h6 className="card-subtitle mb-2 text-muted font-weight-light">{post.name}({post.mail})</h6>
-                            <p className="card-text">{post.memo}</p>
-                            <p className="float-right">
-                              <button className="btn btn-info btn-sm" onClick={this.edit_post.bind(null, post.id)}>編集</button>
-                              <button className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>削除</button>
-                            </p>
-                          </div>
-                        </div>)
-            }else{
-              return(<div className="card">
-                        <h4 className="card-header">{post.title}
-                        </h4>
-                        <div className="card-body">
-                          <h6 className="card-subtitle mb-2 text-muted font-weight-light">{post.name}({post.mail})</h6>
-                          <p className="card-text">
-                            <textarea id="memo" className="form-control" name="memo" onChange={this.editMemoChange.bind(this)} value={this.state.edit_post.memo}></textarea>
-                          </p>
-                          <p className="float-right">
-                            <button className="btn btn-info btn-sm" onClick={this.update_post.bind(null, post.id)}>更新</button>
-                            <button className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>削除</button>
-                          </p>
-                        </div>
-                      </div>)
-            }
+            return(<div className="card">
+                      <h4 className="card-header">{post.title}
+                      </h4>
+                      <div className="card-body">
+                        <h6 className="card-subtitle mb-2 text-muted font-weight-light">{post.name}({post.mail})</h6>
+                        <p className="card-text">{post.memo}</p>
+                        <p className="float-right">
+                          <button className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>非表示</button>
+                        </p>
+                      </div>
+                    </div>)
           }
         )}
         </div>
