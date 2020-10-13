@@ -8,14 +8,15 @@ class HelloWorld extends React.Component {
       mail: "",
       title: "",
       memo: "",
+      category_name: "",
+      edit_category: {id: 0},
       users: props.users,
       categories: props.categories,
       posts: props.posts,
       category: props.category,
       user: props.user,
       edit_post: {id: 0},
-      errors: null,
-      url: props.url
+      errors: null
     }
   }
 
@@ -48,25 +49,32 @@ class HelloWorld extends React.Component {
       return {memo: state.memo}
     });
   }
-  editMemoChange(event){
+  editCategoryChange(event){
     const value = event.target.value;
     this.setState((state) => {
-      state.edit_post.memo = value;
-      return {edit_post: state.edit_post}
+      state.edit_category.name = value;
+      return {edit_category: state.edit_category}
+    });
+  }
+  createCategoryChange(event){
+    const value = event.target.value;
+    this.setState((state) => {
+      state.category_name = value;
+      return {category_name: state.category_name}
     });
   }
 
   // 投稿ボタン
   submit_btn = () => {
-    const res = ajax_request("POST", $('#post').serialize(), this.state.url);
+    const res = ajax_request("POST", $('#post').serialize(), "/welcomes");
     res.then((response) => {
       const resJS = JSON.parse(response);
       this.setState({
         posts: resJS.posts,
-        name: "",
-        mail: "",
-        title: "",
-        memo: "",
+        name: resJS.name,
+        mail: resJS.mail,
+        title: resJS.title,
+        memo: resJS.memo,
         errors: resJS.errors
       });
     });
@@ -80,10 +88,6 @@ class HelloWorld extends React.Component {
       this.setState({
         category: resJS.category,
         posts: resJS.posts,
-        name: "",
-        mail: "",
-        title: "",
-        memo: "",
         errors: null
       })
     });
@@ -97,10 +101,6 @@ class HelloWorld extends React.Component {
         const resJS = JSON.parse(response);
         this.setState({
           posts: resJS.posts,
-          name: "",
-          mail: "",
-          title: "",
-          memo: "",
           errors: null
         })
       });
@@ -127,40 +127,57 @@ class HelloWorld extends React.Component {
     });
   }
 
-  // edit_post = (post_id) => {
-  //   const res = ajax_request("GET", "", "/welcomes/" + post_id + "/edit")
-  //   res.then((response) => {
-  //     const resJS = JSON.parse(response);
-  //     this.setState({
-  //       posts: resJS.posts,
-  //       edit_post: resJS.edit_post,
-  //       name: "",
-  //       mail: "",
-  //       title: "",
-  //       memo: "",
-  //       errors: null
-  //     })
-  //   });
-  // }
+  // カテゴリ編集
+  edit_category = (category_id) => {
+    const res = ajax_request("GET", "", "/welcomes/" + category_id + "/edit")
+    res.then((response) => {
+      const resJS = JSON.parse(response);
+      this.setState({
+        edit_category: resJS.edit_category,
+        errors: null
+      })
+    });
+  }
 
-  // カテゴリー登録
+  // カテゴリ更新
+  update_category = (category_id) => {
+    const res = ajax_request("PUT", "name=" + $("#category_name").val(), "/welcomes/" + category_id)
+    res.then((response) => {
+      const resJS = JSON.parse(response);
+      this.setState({
+        edit_category: {id: 0},
+        categories: resJS.categories
+      })
+    });
+  }
+
+  // カテゴリ登録
   category_create = () => {
-    const res = ajax_request("GET", $("#category").serialize() + "&" + $("#post").serialize(), "/category_create")
+    const res = ajax_request("GET", "name=" + $("#category_create").val(), "/category_create")
     res.then((response) => {
       const resJS = JSON.parse(response);
       this.setState({
         categories: resJS.categories,
-        category: resJS.category,
-        posts: resJS.posts,
-        users: resJS.users,
-        user: resJS.user,
-        name: "",
-        mail: "",
-        title: "",
-        memo: "",
-        errors: null
+        errors: null,
+        category_name: ""
       })
     });
+  }
+
+  // カテゴリ削除
+  category_destroy = (category_id) => {
+    if(confirm("削除しますか？")){
+      const res = ajax_request("GET", "", "/category_destroy/" + category_id)
+      res.then((response) => {
+        const resJS = JSON.parse(response);
+        this.setState({
+          categories: resJS.categories,
+          category: resJS.category,
+          posts: resJS.posts,
+          errors: null
+        })
+      });
+    }
   }
 
   render () {
@@ -177,6 +194,7 @@ class HelloWorld extends React.Component {
       <React.Fragment>
         <nav className="navbar navbar-dark bg-dark text-white">
           <div className="dropdown open">
+            ユーザー：
             <button className="btn btn-secondary dropdown-toggle"
                     type="button" id="dropdownMenu3" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
@@ -190,10 +208,8 @@ class HelloWorld extends React.Component {
             </div>
           </div>
         </nav>
-        <div id="errorMsg" className={errorMsg == "" ?  "alert alert-danger navbar fixed-top invisible" : "alert alert-danger navbar fixed-top"}>
-          {errorMsg}
-        </div>
         <ul className="nav nav-tabs">
+          <li className="nav-item"><button disabled className="nav-link">カテゴリ</button></li>
         {this.state.categories.map(
             (category_, idx) => {
               return(<li className="nav-item"><button className={category_.id == this.state.category.id ? "nav-link btn_link active" : "nav-link btn_link bg-secondary text-white"} onClick={this.change_category.bind(null, category_.id)}>{category_.name}</button></li>)
@@ -201,28 +217,32 @@ class HelloWorld extends React.Component {
           }
           {this.state.user.admin_flg &&
           <li className="nav-item">
-            <button className="nav-link" data-toggle="modal" data-target="#exampleModal">カテゴリー追加</button>
+            <button className="nav-link" data-toggle="modal" data-target="#exampleModal">管理機能</button>
           </li>
           }
         </ul>
-        <form id="post" className="form-group input-group">
-
-          <label>名前
-            <input className="form-control" type="text" name="post[name]" value={this.state.name} onChange={this.nameChange.bind(this)} />
-          </label>
-          <label>メールアドレス
-            <input className="form-control" type="text" name="post[mail]" value={this.state.mail} onChange={this.mailChange.bind(this)} />
-          </label>
-          <label>件名
-            <input className="form-control" type="text" name="post[title]" value={this.state.title} onChange={this.titleChange.bind(this)} />
-          </label>
-          <label>本文
-            <textarea className="form-control" name="post[memo]" onChange={this.memoChange.bind(this)} value={this.state.memo}></textarea>
-          </label>
-          <input type="hidden" name="post[category_id]" value={this.state.category.id} />
-          <input type="hidden" name="post[user_id]" value={this.state.user.id} />
-        </form>
-        <button className="btn btn-primary" onClick={this.submit_btn}>投稿</button>
+        <div className="input-group">
+          <form id="post" className="form-inline">
+            <label>名前
+              <input className="form-control" type="text" name="post[name]" value={this.state.name} onChange={this.nameChange.bind(this)} />
+            </label>
+            <label>メールアドレス
+              <input className="form-control" type="text" name="post[mail]" value={this.state.mail} onChange={this.mailChange.bind(this)} />
+            </label>
+            <label>件名
+              <input className="form-control" type="text" name="post[title]" value={this.state.title} onChange={this.titleChange.bind(this)} />
+            </label>
+            <label>本文
+              <textarea className="form-control" name="post[memo]" onChange={this.memoChange.bind(this)} value={this.state.memo}></textarea>
+            </label>
+            <input type="hidden" name="post[category_id]" value={this.state.category.id} />
+            <input type="hidden" name="post[user_id]" value={this.state.user.id} />
+          </form>
+          <button className="btn btn-primary" onClick={this.submit_btn}>投稿</button>
+        </div>
+        <div id="errorMsg" className={errorMsg == "" ?  "alert alert-danger navbar invisible" : "alert alert-danger navbar"}>
+          {errorMsg}
+        </div>
         <div className="card-columns">
         {this.state.posts.map(
           (post, idx) => {
@@ -230,11 +250,21 @@ class HelloWorld extends React.Component {
                       <h4 className="card-header">{post.title}
                       </h4>
                       <div className="card-body">
-                        <h6 className="card-subtitle mb-2 text-muted font-weight-light">{post.name}({post.mail})</h6>
+                        <h6 className="card-subtitle mb-2 text-muted font-weight-light">名前：{post.name}(Mail:{post.mail})</h6>
                         <p className="card-text">{post.memo}</p>
-                        {this.state.user.id == post.user_id &&
+                        {this.state.user.admin_flg == true ?
+                          (this.state.user.id == post.user_id ?
+                            (post.disp_flg == true ? <button className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>非表示</button> : <button disabled className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>非表示済</button>)
+                            :
+                            (post.disp_flg !== true && <button disabled className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>非表示済</button>)
+                          )
+                          :
+                          
+                        this.state.user.id == post.user_id &&
                         <p className="float-right">
-                          <button className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>非表示</button>
+                          {post.disp_flg == true ?
+                          <button className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>非表示</button> : <button disabled className="btn btn-danger btn-sm" onClick={this.destroy_post.bind(null, post.id)}>非表示済</button>
+                          }
                         </p>
                         }
                       </div>
@@ -247,24 +277,38 @@ class HelloWorld extends React.Component {
           <div className="modal-dialog" role="document">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title" id="exampleModalLabel">カテゴリー追加</h5>
+                <h5 className="modal-title" id="exampleModalLabel">カテゴリ管理</h5>
                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">×</span>
                 </button>
               </div>
               <div className="modal-body">
-                <form id="category" >
-                  <input className="form-control" type="text" name="category[name]" />
-                </form>
+                
+                  <ul className="list-group">
+                  {this.state.categories.map(
+                    (cat, idx) => {
+                    return(<li className="list-group-item">
+                      {this.state.edit_category.id == cat.id ? <input id="category_name" type="text" name="category_name" onChange={this.editCategoryChange.bind(this)} value={this.state.edit_category.name} /> : cat.name}(投稿数：{cat.count_posts}件)
+                    <span className="float-right">
+                    {this.state.edit_category.id == cat.id ? <button className="btn btn-success btn-sm" onClick={this.update_category.bind(null, this.state.edit_category.id)}>更新</button> : <button className="btn btn-primary btn-sm" onClick={this.edit_category.bind(null, cat.id)}>編集</button>}
+                    <button className="btn btn-danger btn-sm" onClick={this.category_destroy.bind(null, cat.id)}>削除</button>
+                    </span>
+                    </li>)
+                  })}
+                  <li className="list-group-item"><input type="text" id="category_create" name="category_create" placeholder="新規追加" onChange={this.createCategoryChange.bind(this)} value={this.state.category_name} />
+                    <span className="float-right">
+                      <button type="button" className="btn btn-primary btn-sm" onClick={this.category_create}>追加</button>
+                    </span>
+                  </li>
+                  </ul>
+                
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" data-dismiss="modal">閉じる</button>
-                <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={this.category_create}>登録</button>
               </div>
             </div>
           </div>
         </div>
-
       </React.Fragment>
     );
   }
