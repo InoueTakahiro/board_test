@@ -15,7 +15,7 @@ Post.create([
     title: "あなたの番です",
     memo: "DVD発売決定だそうです！続編観たいーー！",
     category_id: 1,
-    user_id: 1
+    user_id: 2
     },
     {name: "植木ハル",
     mail: "haruharu@ueki.jp",
@@ -29,7 +29,7 @@ Post.create([
     title: "なぎささん",
     memo: "また続き観たいなー。第2弾待ってます！",
     category_id: 1,
-    user_id: 1
+    user_id: 3
     },
     {name: "ありあり",
     mail: "ariari@ariari.ac.jp",
@@ -43,13 +43,13 @@ Post.create([
     title: "東京 BABY BOYS 9",
     memo: "ぜひレギュラー化を！！ライブも楽しみにしてます！",
     category_id: 2,
-    user_id: 1
+    user_id: 2
     },
     {name: "永久",
     mail: "towa@tot.co.jp",
     title: "とある～～",
     memo: "バトルシーン！！",
     category_id: 3,
-    user_id: 1
+    user_id: 3
     },
 ])

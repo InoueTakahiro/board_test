@@ -1,8 +1,9 @@
 ja:
   activerecord:
     models:
-      category: カテゴリー
+      category: カテゴリ
       post: 書き込み
+      user: ユーザー
     attributes:
       category:
         name: カテゴリー名
@@ -11,3 +12,6 @@ ja:
         mail: メールアドレス
         title: 件名
         memo: 本文
+      user:
+        name: ユーザー名
+        admin_flg: 管理者フラグ

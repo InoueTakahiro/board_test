@@ -4,4 +4,5 @@ Rails.application.routes.draw do
   resources :welcomes
   get 'select_user', to: 'welcomes#select_user'
   get 'category_create', to: 'welcomes#category_create'
+  get 'category_destroy/:id', to: 'welcomes#category_destroy'
 end
