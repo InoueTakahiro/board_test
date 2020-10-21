@@ -7,7 +7,9 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 Category.create([{id: 1, name: "ドラマ"}, {id: 2, name: "バラエティ"}, {id: 3, name: "アニメ"}])
-User.create([{id: 1, name: "管理者", admin_flg: true}, {id: 2, name: "テストユーザーⅠ"}, {id: 3, name: "テストユーザーⅡ"}])
+User.create!([{id: 1, user_id: "admin", name: "管理者", admin_flg: true, password: "123456", password_confirmation: "123456"}, 
+             {id: 2, user_id: "user1", name: "テストユーザーⅠ", password: "000001", password_confirmation: "000001"}, 
+             {id: 3, user_id: "user2", name: "テストユーザーⅡ", password: "000002", password_confirmation: "000002"}])
 
 Post.create([
     {name: "イノウエ",

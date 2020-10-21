@@ -1,1 +1,1 @@
-<%= react_component("HelloWorld",  categories: @categories.to_a, posts: @posts.to_a, category: @category, users: @users, user: session[:user] ) %>
+<%= react_component("HelloWorld",  categories: @categories.to_a, posts: @posts.to_a, category: @category, users: @users, user: current_user ) %>

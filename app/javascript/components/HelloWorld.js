@@ -113,7 +113,6 @@ class HelloWorld extends React.Component {
     res.then((response) => {
       const resJS = JSON.parse(response);
       this.setState({
-        users: resJS.users,
         categories: resJS.categories,
         posts: resJS.posts,
         category: resJS.category,
@@ -125,6 +124,18 @@ class HelloWorld extends React.Component {
         errors: null
       })
     });
+  }
+  // 管理者切り替え
+  select_admin = (onOff) => {
+    if(onOff){
+      $("#loginModal").addClass("show");
+      $("#loginModal").css("display", "block");
+      $("#user_id").val("");
+      $("#password").val("");
+    }else{
+      $("#loginModal").removeClass("show");
+      $("#loginModal").css("display", "none");
+    }
   }
 
   // カテゴリ編集
@@ -180,6 +191,23 @@ class HelloWorld extends React.Component {
     }
   }
 
+  // ログインボタン
+  // TODO
+  login_modal = () => {
+    this.select_admin(false);
+    const res = ajax_request("POST", $('#login').serialize(), "/users/sign_in")
+    res.then((response) => {
+      const resJS = JSON.parse(response);
+      this.setState({
+        user: resJS.user,
+        name: "",
+        mail: "",
+        title: "",
+        memo: ""
+      })
+    });
+  }
+
   render () {
     let errorMsg = "";
     if(this.state.errors !== null){
@@ -203,7 +231,7 @@ class HelloWorld extends React.Component {
             <div className="dropdown-menu">
               <h6 className="dropdown-header">ユーザー切り替え</h6>
               {this.state.users.map((user_, idx) => {
-                return(<button className="dropdown-item" onClick={this.select_post.bind(null, user_.id)}>{user_.name}</button>)
+                return(<button disabled={user_.id == this.state.user.id ? "disabled" : ""} className="dropdown-item" onClick={user_.admin_flg ? this.select_admin.bind(null, true) : this.select_post.bind(null, user_.id)}>{user_.name}</button>)
               })}
             </div>
           </div>
@@ -309,6 +337,38 @@ class HelloWorld extends React.Component {
             </div>
           </div>
         </div>
+
+          <div className="modal fade" id="loginModal" tabIndex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+            <div className="modal-dialog" role="document">
+              <div className="modal-content">
+                <div className="modal-header">
+                  <h5 className="modal-title" id="loginModalLabel">管理者ログイン</h5>
+                  <button type="button" className="close" onClick={this.select_admin.bind(null, false)}>
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
+                <div className="modal-body">
+                  <form id="login">
+                    <div className="form-inline">
+                      <label>ログインID
+                        <input id="user_id" className="form-control" type="text" name="user[user_id]" placeholder="ログインID" />
+                      </label>
+                    </div>
+                    <div className="form-inline">
+                      <label>パスワード
+                        <input id="password" className="form-control" type="text" name="user[password]" placeholder="パスワード" />
+                        <input type="hidden" name="user[remember_me]" value="0" />
+                      </label>
+                    </div>
+                  </form>
+                </div>
+                <div className="modal-footer">
+                  <button type="button" className="btn btn-primary" onClick={this.login_modal}>ログイン</button>
+                  <button type="button" className="btn btn-secondary" onClick={this.select_admin.bind(null, false)}>閉じる</button>
+                </div>
+              </div>
+            </div>
+          </div>
       </React.Fragment>
     );
   }

@@ -1,21 +1,21 @@
 class WelcomesController < ApplicationController
-
+	
 	def index
-		@users = User.all()
-		session[:user] = @users.first()
+		@users = User.all
+		sign_in @users.to_a[1]		
 		@categories = Category.all()
 		@category = Category.first()
-		@posts = @category.disp_posts(session[:user]["admin_flg"])
+		@posts = @category.disp_posts(current_user["admin_flg"])
 		session[:category] = @category
 	end
 
 	def select_user
 		@categories = Category.all()
 		@category = Category.find(params[:post][:category_id])
-		@users = User.all()
-		session[:user] = User.find(params[:user_id])
-		@posts = @category.disp_posts(session[:user]["admin_flg"])
-		render json: {categories: @categories, category: @category, posts: @posts, users: @users, user: session[:user]}
+		user = User.find(params[:user_id])
+		sign_in user
+		@posts = @category.disp_posts(current_user["admin_flg"])
+		render json: {categories: @categories, category: @category, posts: @posts, user: current_user}
 	end
 
 	def category_create
@@ -37,7 +37,7 @@ class WelcomesController < ApplicationController
 
 	def show
 		@category = Category.find(params[:id])
-		@posts = @category.disp_posts(session[:user]["admin_flg"])
+		@posts = @category.disp_posts(current_user["admin_flg"])
 		session[:category] = @category
 		render json: {category: @category, posts: @posts}
 	end
@@ -58,7 +58,7 @@ class WelcomesController < ApplicationController
 	def create
 		post = Post.new(post_params)
 		post.save
-		@posts = Post.disp_all({category_id: post.category_id}, session[:user]["admin_flg"])
+		@posts = Post.disp_all({category_id: post.category_id}, current_user["admin_flg"])
 		if post.errors.blank?
 			post.name = ""
 			post.mail = ""
@@ -73,7 +73,7 @@ class WelcomesController < ApplicationController
 		post = Post.find(params[:id])
 		post.disp_flg = false
 		post.save
-		@posts = Post.disp_all({category_id: post.category_id}, session[:user]["admin_flg"])
+		@posts = Post.disp_all({category_id: post.category_id}, current_user["admin_flg"])
 		render json: {posts: @posts}
 	end
 
